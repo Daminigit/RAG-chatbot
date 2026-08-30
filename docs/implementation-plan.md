@@ -151,7 +151,7 @@ RecursiveCharacterTextSplitter(
 
 ### 2.1 PII Scrubber (`src/validation/pii_scrubber.py`)
 
-Implement regex-based detection and redaction for:
+- [x] Implement regex-based detection and redaction for:
 
 | PII Type | Regex Pattern |
 |---|---|
@@ -166,7 +166,7 @@ Implement regex-based detection and redaction for:
 
 ### 2.2 Intent Classifier (`src/query/intent_classifier.py`)
 
-- Rule-based primary classifier using keyword lists:
+- [x] Rule-based primary classifier using keyword lists:
   - `ADVISORY_KEYWORDS`: `["should i invest", "which fund is better", "recommend", "best fund", "should i buy", "which is good", "should i sell", "future return", "will it grow"]`
   - `FACTUAL_KEYWORDS`: `["expense ratio", "exit load", "minimum sip", "lock-in", "benchmark", "riskometer", "nav", "elss", "aum", "fund manager", "category", "returns factsheet"]`
 - `classify_intent(query: str) -> Literal["FACTUAL", "ADVISORY", "UNKNOWN"]`
@@ -174,7 +174,7 @@ Implement regex-based detection and redaction for:
 
 ### 2.3 Refusal Handler (`src/query/refusal_handler.py`)
 
-- `get_refusal_response(query: str) -> dict` returns:
+- [x] `get_refusal_response(query: str) -> dict` returns:
   ```python
   {
       "answer": "I'm sorry, this assistant provides facts-only information about mutual fund schemes and cannot offer investment advice or recommendations.",
@@ -183,7 +183,7 @@ Implement regex-based detection and redaction for:
   }
   ```
 
-**Deliverable:** PII scrubber, intent classifier, and refusal handler with unit tests.
+**Deliverable:** ✅ PII scrubber, intent classifier, and refusal handler with unit tests.
 
 ---
 
