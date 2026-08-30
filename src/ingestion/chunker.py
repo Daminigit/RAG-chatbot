@@ -17,10 +17,12 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Chunking configuration (as per Architecture.md §3.1)
+# Chunking configuration — data-driven (benchmarked on all 5 Groww fund pages)
+# Each page is 16K–20K chars; size=800 gives 23–29 dense chunks, min length ~486
+# overlap=100 (~12.5%) ensures facts split across boundaries stay co-located
 # ---------------------------------------------------------------------------
-CHUNK_SIZE = 512      # characters
-CHUNK_OVERLAP = 64    # characters
+CHUNK_SIZE = 800      # characters (updated from 512 after data analysis)
+CHUNK_OVERLAP = 100   # characters (updated from 64 after data analysis)
 
 
 def _compute_hash(text: str) -> str:

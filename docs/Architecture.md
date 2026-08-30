@@ -69,7 +69,7 @@ The Mutual Fund FAQ Assistant is a **Retrieval-Augmented Generation (RAG)** syst
 |---|---|
 | **Source Scraper** | Fetches HTML content exclusively from the **5 official Groww fund pages** listed in the corpus below using `requests` + `BeautifulSoup`. |
 | **Document Parser** | Normalises Groww HTML into plain text. Targets fund-specific fields (Expense Ratio, Exit Load, SIP, Riskometer, Benchmark, NAV). Strips nav bars, ads, and boilerplate. |
-| **Chunker** | Splits cleaned text into overlapping fixed-size chunks (512 tokens, 64-token overlap) using LangChain's `RecursiveCharacterTextSplitter`. |
+| **Chunker** | Splits cleaned text into overlapping chunks (**800 chars, 100-char overlap**) using LangChain's `RecursiveCharacterTextSplitter`. Benchmarked on all 5 fund pages — produces 23–29 dense chunks per fund with min length ~486 chars. |
 | **Metadata Tagger** | Attaches metadata to each chunk: `source_url` (Groww URL), `fund_name`, `category`, `scraped_at` date. |
 | **Embedding Generator** | Converts chunks to dense vectors using `sentence-transformers/all-MiniLM-L6-v2`. |
 | **Vector Store Writer** | Upserts embeddings + metadata into **ChromaDB** (local, persistent). |

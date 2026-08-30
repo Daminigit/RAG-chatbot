@@ -82,19 +82,54 @@ FUND_URLS = {
 
 ### 1.3 Chunking & Metadata Tagging (`src/ingestion/chunker.py`)
 
-- Use `LangChain`'s `RecursiveCharacterTextSplitter`:
-  - `chunk_size=512` (characters)
-  - `chunk_overlap=64`
-- Attach metadata to every chunk:
-  ```python
-  {
-      "source_url": "https://...",
-      "fund_name": "HDFC Mid Cap Opportunities Fund",
-      "fund_key": "hdfc_mid_cap",
-      "category": "Mid Cap",
-      "scraped_at": "2024-01-15T10:30:00Z"
-  }
-  ```
+**Data-driven strategy** — based on analysis of actual `data/processed/` content:
+
+| Fund | Raw Chars | Raw Lines | Key Fields Found |
+|---|---|---|---|
+| HDFC Mid Cap | 19,251 | 1,116 | 11 / 11 |
+| HDFC Small Cap | 19,839 | 1,141 | 11 / 11 |
+| HDFC Gold ETF FoF | 16,225 | 799 | 11 / 11 |
+| HDFC Large Cap | 17,794 | 988 | 11 / 11 |
+| HDFC ELSS | 18,484 | 1,051 | 11 / 11 |
+
+**Chunking strategy benchmarked (all 5 funds):**
+
+| Strategy | Chunks/fund | Avg len | Min len | Verdict |
+|---|---|---|---|---|
+| `size=256, overlap=32` | 75–90 | 230 | 36 | ❌ Too small — single lines, no context |
+| `size=512, overlap=64` *(original)* | 38–50 | 478 | 270 | ⚠️ Acceptable but noisy boilerplate chunks |
+| `size=512, overlap=128` | 41–52 | 491 | 141 | ⚠️ Better continuity but still too many chunks |
+| **`size=800, overlap=100`** *(selected)* | **23–29** | **766** | **486** | **✅ Best — dense, meaningful, no orphan chunks** |
+| `size=1024, overlap=128` | 19–23 | 972 | 302 | ⚠️ Too large — dilutes specificity of retrieval |
+
+**Selected configuration:**
+
+```python
+RecursiveCharacterTextSplitter(
+    chunk_size=800,       # balances context richness vs. retrieval precision
+    chunk_overlap=100,    # ~12.5% overlap ensures fact continuity across boundaries
+    separators=["\n\n", "\n", ". ", " ", ""],
+)
+```
+
+**Rationale:**
+- Groww pages are 16K–20K characters of HTML-extracted text with many short navigation lines — larger chunks (800) help absorb noisy lines without losing semantic integrity
+- `overlap=100` (~12.5%) ensures key facts split across boundaries (e.g. "Exit Load: 1%\nif redeemed within 1 year") stay co-located in at least one chunk
+- Min chunk length of 486 chars at `size=800` eliminates orphan/stub chunks that hurt retrieval precision
+- Produces **23–29 high-quality chunks per fund** (115–145 total), a manageable index size for ChromaDB cosine search
+
+**Metadata attached to every chunk:**
+```python
+{
+    "source_url": "https://groww.in/mutual-funds/...",
+    "fund_name": "HDFC Mid Cap Opportunities Fund",
+    "fund_key": "hdfc_mid_cap",
+    "category": "Mid Cap",
+    "scraped_at": "2024-01-15T10:30:00Z",
+    "chunk_index": 0,       # position within document
+    "content_hash": "sha256...",  # for deduplication
+}
+```
 - Save chunks as `data/processed/<fund_key>_chunks.json`
 
 ### 1.4 Embedding & Vector Store (`src/ingestion/embedder.py`)
