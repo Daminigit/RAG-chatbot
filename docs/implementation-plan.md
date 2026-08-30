@@ -65,14 +65,12 @@ FUND_URLS = {
 - If JS-rendered content is missing (check for key fields like "Expense Ratio"), fall back to `Playwright` headless browser
 - Save raw HTML to `data/raw/<fund_key>.html`
 - Record `scraped_at` timestamp per fund (ISO-8601 UTC)
-- Also fetch official HDFC AMC PDF factsheets where available
 
 **Implementation note:** Groww pages load fund data via JavaScript. For reliable scraping, use `playwright` with `page.wait_for_selector('[data-testid="expense-ratio"]')` or equivalent before extracting.
 
 ### 1.2 Document Parsing (`src/ingestion/scraper.py`)
 
 - Parse HTML with `BeautifulSoup4`; extract fund-specific sections (Expense Ratio, Exit Load, SIP details, Riskometer, Benchmark, NAV, Lock-in period)
-- Parse PDF factsheets with `PyMuPDF` (`fitz.open()`)
 - Strip boilerplate (nav bars, footers, ads) using CSS selector targeting
 - Output: Clean plain-text per document saved to `data/processed/<fund_key>.txt`
 
