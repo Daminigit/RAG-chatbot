@@ -11,6 +11,7 @@ chromadb>=0.5.0
 
 # Embeddings
 sentence-transformers>=2.7.0
+torchvision
 
 # UI
 streamlit>=1.36.0
