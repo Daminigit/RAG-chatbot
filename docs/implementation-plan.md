@@ -193,23 +193,25 @@ Implement regex-based detection and redaction for:
 
 **Duration:** ~0.5 day
 
-### 3.1 Vector Retriever (`src/retrieval/retriever.py`)
+### 3.1 Query Intent & Metadata Pre-filtering (`src/retrieval/retriever.py`)
 
-- Load ChromaDB collection
-- `retrieve(query: str, k: int = 5) -> List[Document]`
-  - Embed query using same model as ingestion
-  - Cosine similarity search returning top-5 chunks with metadata
+- **Data Insight:** 30% of chunks contain navigation boilerplate, and portfolio data spans up to 17 chunks per fund. 
+- Implement a lightweight regex/keyword extractor to identify if the query targets a specific fund (e.g., "mid cap", "small cap", "elss").
+- If a specific fund is detected, create a metadata filter: `{"fund_key": "hdfc_mid_cap"}`. This eliminates 80% of cross-fund noise before semantic search even begins.
 
-### 3.2 MMR Re-ranker
+### 3.2 Vector Retriever with MMR (`src/retrieval/retriever.py`)
 
-- Apply `langchain`'s `max_marginal_relevance_search` or custom MMR:
-  - `lambda` diversity parameter = 0.5 (balance relevance vs. diversity)
-  - Select top-3 from top-5 candidates
-- Return: list of 3 `(chunk_text, metadata)` tuples
+- Load ChromaDB collection (`mutual_funds`).
+- `retrieve(query: str, filter_dict: dict = None) -> List[Document]`
+  - Embed query using the ingestion embedding model.
+  - **Fetch large (`fetch_k=20`)**: Cast a wide net to ensure we bypass boilerplate and capture scattered facts (like portfolio sectors).
+  - **Maximal Marginal Relevance (MMR)**: Select the top-5 diverse chunks from the 20 candidates.
+    - `lambda_mult` = 0.5 (balances exact semantic match with diversity).
+  - Return: list of 5 `(chunk_text, metadata)` tuples.
 
 ### 3.3 Context Builder (`src/retrieval/context_builder.py`)
 
-- Concatenate top-3 chunks into context string:
+- Concatenate the 5 chunks into a single context string, grouped by source:
   ```
   [Source: HDFC Mid Cap Fund | https://groww.in/...]
   <chunk text>
@@ -219,7 +221,7 @@ Implement regex-based detection and redaction for:
   ```
 - Return: `context: str`, `primary_source_url: str` (from highest-ranked chunk), `scraped_at: str`
 
-**Deliverable:** End-to-end retrieval returning top-3 relevant chunks with source metadata.
+**Deliverable:** End-to-end retrieval returning top-5 diverse chunks, with optional fund metadata pre-filtering.
 
 ---
 
