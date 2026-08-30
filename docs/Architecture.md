@@ -124,8 +124,8 @@ The LLM inference is handled by the **Groq Cloud API**, which delivers sub-500ms
 | Parameter | Value |
 |---|---|
 | **LLM Provider** | Groq Cloud API |
-| **Primary Model** | `llama3-8b-8192` |
-| **Fallback Model** | `mixtral-8x7b-32768` |
+| **Primary Model** | `qwen/qwen3.8-27b` |
+| **Fallback Model** | `openai/gpt-oss-20b` |
 | **Max Output Tokens** | 256 |
 | **Temperature** | 0.0 (deterministic; eliminates creative hallucination) |
 | **Top-P** | 1.0 |
@@ -225,7 +225,7 @@ A minimal, responsive UI built with **Streamlit**.
 
 | Layer | Technology | Rationale |
 |---|---|---|
-| LLM Inference | **Groq Cloud API** (`llama3-8b-8192`) | Sub-500ms latency via LPU; free tier available; OpenAI-compatible |
+| LLM Inference | **Groq Cloud API** (`qwen/qwen3.8-27b`) | Sub-500ms latency via LPU; free tier available; OpenAI-compatible |
 | Embedding Model | `sentence-transformers/all-MiniLM-L6-v2` | Lightweight, fast, strong semantic similarity |
 | Vector Store | **ChromaDB** (local, persistent) | Zero-infrastructure; easy metadata filtering |
 | Document Parsing | `BeautifulSoup4` | Reliable HTML parsing for Groww fund pages |
@@ -326,7 +326,7 @@ client = Groq(api_key=os.environ["GROQ_API_KEY"])
 
 def call_groq(system_prompt: str, context: str, question: str) -> str:
     response = client.chat.completions.create(
-        model=os.environ.get("GROQ_MODEL", "llama3-8b-8192"),
+        model=os.environ.get("GROQ_MODEL", "qwen/qwen3.8-27b"),
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
@@ -342,8 +342,8 @@ def call_groq(system_prompt: str, context: str, question: str) -> str:
 
 ```env
 GROQ_API_KEY=your_groq_api_key_here
-GROQ_MODEL=llama3-8b-8192
-GROQ_FALLBACK_MODEL=mixtral-8x7b-32768
+GROQ_MODEL=qwen/qwen3.8-27b
+GROQ_FALLBACK_MODEL=openai/gpt-oss-20b
 CHROMA_PERSIST_DIR=./vectorstore
 EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 ```

@@ -1,6 +1,6 @@
 # Implementation Plan: Mutual Fund FAQ Assistant (Facts-Only RAG Chatbot)
 
-> **LLM Provider:** Groq Cloud API (`llama3-8b-8192`)
+> **LLM Provider:** Groq Cloud API (`qwen/qwen3.8-27b`)
 > **Vector Store:** ChromaDB (local, persistent)
 > **Embedding:** `sentence-transformers/all-MiniLM-L6-v2`
 > **UI:** Streamlit
@@ -35,10 +35,14 @@
   ```
 - [x] Set up `.gitignore` (exclude `.env`, `.venv/`, `vectorstore/`, `data/raw/`, `__pycache__/`)
 - [x] Create `.venv` virtual environment (`python3 -m venv .venv`) and install all dependencies
-- [ ] Obtain Groq API key from https://console.groq.com and store in `.env`
-- [ ] Verify Groq API connectivity (`python scripts/verify_groq.py`)
+- [x] Obtain Groq API key from https://console.groq.com and store in `.env`
+- [x] Verify Groq API connectivity (`python scripts/verify_groq.py`) — ✅ `qwen/qwen3.8-27b` connected
 
-**Deliverable:** Working dev environment; Groq API key validated.
+> [!NOTE]
+> Model updated: `llama3-8b-8192` and `mixtral-8x7b-32768` are deprecated on this account.
+> **Primary:** `qwen/qwen3.8-27b` | **Fallback:** `openai/gpt-oss-20b`
+
+**Deliverable:** ✅ Working dev environment; Groq API key validated.
 
 
 ---
@@ -100,7 +104,7 @@ FUND_URLS = {
 - For each chunk: generate embedding, upsert to ChromaDB with metadata
 - Add deduplication: skip chunks with matching `source_url` + content hash if already indexed
 
-**Deliverable:** Populated ChromaDB vectorstore; all 5 funds indexed; `data/processed/` populated.
+**Deliverable:** ✅ `src/ingestion/scraper.py`, `chunker.py`, `embedder.py` implemented. `run_ingestion.py` entrypoint created. 19/19 unit tests passing.
 
 ---
 
@@ -201,7 +205,7 @@ _client = Groq(api_key=os.environ["GROQ_API_KEY"])
 def call_groq(system_prompt: str, context: str, question: str) -> str:
     try:
         response = _client.chat.completions.create(
-            model=os.environ.get("GROQ_MODEL", "llama3-8b-8192"),
+            model=os.environ.get("GROQ_MODEL", "qwen/qwen3.8-27b"),
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
@@ -214,7 +218,7 @@ def call_groq(system_prompt: str, context: str, question: str) -> str:
     except Exception as e:
         # Fallback to mixtral
         response = _client.chat.completions.create(
-            model=os.environ.get("GROQ_FALLBACK_MODEL", "mixtral-8x7b-32768"),
+            model=os.environ.get("GROQ_FALLBACK_MODEL", "openai/gpt-oss-20b"),
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
