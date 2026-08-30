@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-The Mutual Fund FAQ Assistant is a **Retrieval-Augmented Generation (RAG)** system built to deliver strict, facts-only answers about mutual fund schemes. It grounds every response in a curated corpus of official documents (AMC websites, AMFI, SEBI) and uses **Groq** as the inference engine for ultra-low-latency language model completions. The system is designed for compliance-first operation — no investment advice, no opinions, no hallucinations.
+The Mutual Fund FAQ Assistant is a **Retrieval-Augmented Generation (RAG)** system built to deliver strict, facts-only answers about mutual fund schemes. It grounds every response in a curated corpus of **5 official Groww mutual fund pages** (HDFC fund scheme listings) and uses **Groq** as the inference engine for ultra-low-latency language model completions. The system is designed for compliance-first operation — no investment advice, no opinions, no hallucinations.
 
 ---
 
@@ -67,16 +67,19 @@ The Mutual Fund FAQ Assistant is a **Retrieval-Augmented Generation (RAG)** syst
 
 | Sub-component | Description |
 |---|---|
-| **Source Scraper** | Fetches content from official Groww fund pages, AMC factsheets (PDFs), AMFI, and SEBI portals using `requests` + `BeautifulSoup` / `PyMuPDF`. |
-| **Document Parser** | Normalises HTML and PDF content into plain text. Strips navigation, ads, and boilerplate. |
+| **Source Scraper** | Fetches HTML content exclusively from the **5 official Groww fund pages** listed in the corpus below using `requests` + `BeautifulSoup`. |
+| **Document Parser** | Normalises Groww HTML into plain text. Targets fund-specific fields (Expense Ratio, Exit Load, SIP, Riskometer, Benchmark, NAV). Strips nav bars, ads, and boilerplate. |
 | **Chunker** | Splits cleaned text into overlapping fixed-size chunks (512 tokens, 64-token overlap) using LangChain's `RecursiveCharacterTextSplitter`. |
-| **Metadata Tagger** | Attaches metadata to each chunk: `source_url`, `fund_name`, `category`, `scraped_at` date. |
-| **Embedding Generator** | Converts chunks to dense vectors using `sentence-transformers/all-MiniLM-L6-v2` or `BAAI/bge-small-en-v1.5`. |
-| **Vector Store Writer** | Upserts embeddings + metadata into **ChromaDB** (local) or **FAISS** index. |
+| **Metadata Tagger** | Attaches metadata to each chunk: `source_url` (Groww URL), `fund_name`, `category`, `scraped_at` date. |
+| **Embedding Generator** | Converts chunks to dense vectors using `sentence-transformers/all-MiniLM-L6-v2`. |
+| **Vector Store Writer** | Upserts embeddings + metadata into **ChromaDB** (local, persistent). |
 
-**Corpus:**
+**Corpus — Sole Data Source (Groww URLs only):**
 
-| Fund Name | Category | Groww URL |
+> [!IMPORTANT]
+> The corpus is built **exclusively** from the following 5 Groww fund pages. No AMC PDFs, no AMFI portal, no third-party sources are ingested.
+
+| Fund Name | Category | Source URL (Groww) |
 |---|---|---|
 | HDFC Mid Cap Opportunities Fund | Mid Cap | https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth |
 | HDFC Small Cap Fund | Small Cap | https://groww.in/mutual-funds/hdfc-small-cap-fund-direct-growth |
@@ -225,9 +228,9 @@ A minimal, responsive UI built with **Streamlit**.
 | LLM Inference | **Groq Cloud API** (`llama3-8b-8192`) | Sub-500ms latency via LPU; free tier available; OpenAI-compatible |
 | Embedding Model | `sentence-transformers/all-MiniLM-L6-v2` | Lightweight, fast, strong semantic similarity |
 | Vector Store | **ChromaDB** (local, persistent) | Zero-infrastructure; easy metadata filtering |
-| Document Parsing | `PyMuPDF`, `BeautifulSoup4` | Reliable HTML + PDF parsing |
+| Document Parsing | `BeautifulSoup4` | Reliable HTML parsing for Groww fund pages |
 | Chunking / Orchestration | **LangChain** | Standardised RAG pipeline primitives |
-| Web Scraping | `requests`, `httpx` | HTTP fetching of official fund pages |
+| Web Scraping | `requests`, `Playwright` | `requests` for static pages; `Playwright` fallback for JS-rendered Groww content |
 | UI | **Streamlit** | Rapid prototyping; Python-native |
 | Language | **Python 3.11+** | Ecosystem compatibility |
 | Environment | `python-dotenv` | Secure API key management |
@@ -251,19 +254,19 @@ A minimal, responsive UI built with **Streamlit**.
 
 | Trigger | Action |
 |---|---|
-| **Manual refresh** | Re-run ingestion pipeline; re-scrape all source URLs; rebuild vector index |
-| **Scheduled** | Weekly cron job re-ingests updated AMC factsheets (PDFs change monthly) |
+| **Manual refresh** | Re-run ingestion pipeline; re-scrape all 5 Groww URLs; rebuild vector index |
+| **Scheduled** | Weekly cron job re-scrapes Groww pages (fund data such as NAV and expense ratios updates regularly) |
 | **Metadata freshness** | Each chunk stores `scraped_at` timestamp; footer always reflects the actual data date |
 
 ---
 
 ## 8. Known Limitations
 
-1. **Static corpus** — NAV, expense ratios, and exit loads change frequently; data may be stale between refreshes.
-2. **PDF scraping fragility** — AMC factsheet layouts vary and may break the parser on updates.
+1. **Static corpus** — NAV, expense ratios, and exit loads change frequently on Groww; data may be stale between re-scrapes.
+2. **Groww JS rendering** — Groww pages load fund data via JavaScript; `requests` alone may miss some fields; `Playwright` headless browser is used as fallback.
 3. **No multi-turn memory** — Each query is answered independently; no conversational context is maintained.
 4. **No Hindi/regional language support** — English only.
-5. **Groww JS rendering** — Some Groww page content is JavaScript-rendered; may require Selenium/Playwright as fallback.
+5. **Groww page layout changes** — If Groww restructures its fund pages, HTML selectors in the scraper will need updating.
 6. **Groq rate limits** — Free-tier Groq API has token-per-minute limits; heavy traffic may hit throttling.
 
 ---
