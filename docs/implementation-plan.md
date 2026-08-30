@@ -233,6 +233,7 @@ RecursiveCharacterTextSplitter(
 
 ### 4.1 Groq Client (`src/generation/groq_client.py`)
 
+- [x] Implemented API calls with primary/fallback models.
 ```python
 from groq import Groq
 import os
@@ -268,10 +269,10 @@ def call_groq(system_prompt: str, context: str, question: str) -> str:
 
 ### 4.2 Prompt Builder (`src/generation/prompt_builder.py`)
 
-- `build_system_prompt() -> str` — returns the static system prompt from Architecture §3.4
-- `build_user_message(context: str, question: str) -> str` — formats context + question
+- [x] `build_system_prompt() -> str` — returns the static system prompt from Architecture §3.4
+- [x] `build_user_message(context: str, question: str) -> str` — formats context + question
 
-**Deliverable:** Groq client with retry/fallback; prompt builder; integration test passing.
+**Deliverable:** ✅ Groq client with retry/fallback; prompt builder; integration test passing.
 
 ---
 
