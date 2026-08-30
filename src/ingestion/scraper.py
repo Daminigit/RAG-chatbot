@@ -16,6 +16,7 @@ import time
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import List, Dict, Any, Tuple, Optional
 
 import requests
 from bs4 import BeautifulSoup
@@ -83,7 +84,7 @@ PROCESSED_DIR = Path(os.getenv("PROCESSED_DATA_DIR", "./data/processed"))
 # 1.1  Fetching
 # ---------------------------------------------------------------------------
 
-def _fetch_with_requests(url: str) -> str | None:
+def _fetch_with_requests(url: str) -> Optional[str]:
     """Try fetching page HTML with requests. Returns HTML string or None."""
     try:
         resp = requests.get(url, headers=HEADERS, timeout=15)
@@ -101,7 +102,7 @@ def _is_js_rendered(html: str) -> bool:
     return hits >= 2  # at least 2 key fields present → content loaded
 
 
-def _fetch_with_playwright(url: str) -> str | None:
+def _fetch_with_playwright(url: str) -> Optional[str]:
     """
     Fallback: launch a headless Chromium browser via Playwright,
     wait for the page to fully render, then return the final HTML.
@@ -141,13 +142,13 @@ def _fetch_with_playwright(url: str) -> str | None:
         return None
 
 
-def fetch_fund_page(fund_key: str, url: str) -> tuple[str | None, str]:
+def fetch_fund_page(fund_key: str, url: str) -> Tuple[Optional[str], str]:
     """
     Fetch a Groww fund page. Tries requests first; falls back to Playwright
     if JS-rendered content is not detected.
 
     Returns:
-        (html: str | None, scraped_at: str ISO-8601 UTC)
+        (html: Optional[str], scraped_at: str ISO-8601 UTC)
     """
     scraped_at = datetime.now(timezone.utc).isoformat()
 

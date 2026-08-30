@@ -6,7 +6,7 @@ documents using Maximal Marginal Relevance (MMR) to ensure diversity.
 """
 
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from src.ingestion.embedder import get_chroma_collection, get_embedding_model
 
@@ -23,7 +23,7 @@ FUND_KEYWORD_MAPPING = {
     "tax saving": "hdfc_elss",
 }
 
-def extract_fund_filter(query: str) -> dict[str, str] | None:
+def extract_fund_filter(query: str) -> Optional[dict]:
     """
     Lightweight keyword extractor to detect if the query is about a specific fund.
     

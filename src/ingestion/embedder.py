@@ -14,6 +14,7 @@ Persist directory: CHROMA_PERSIST_DIR (default: ./vectorstore)
 import os
 import logging
 from pathlib import Path
+from typing import Optional
 
 import chromadb
 from chromadb.config import Settings
@@ -40,8 +41,8 @@ EMBED_BATCH_SIZE = 32
 # ---------------------------------------------------------------------------
 # Lazy singletons (initialised on first use)
 # ---------------------------------------------------------------------------
-_embedding_model: SentenceTransformer | None = None
-_chroma_client: chromadb.PersistentClient | None = None
+_embedding_model: Optional[SentenceTransformer] = None
+_chroma_client: Optional[chromadb.PersistentClient] = None
 _collection = None
 
 
