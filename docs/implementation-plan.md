@@ -381,7 +381,7 @@ def answer_query(user_query: str) -> dict:
 
 6. **Session state:** Maintain chat history for the current session (not persisted).
 
-**Deliverable:** Working Streamlit app; all 3 example questions return valid responses.
+**Deliverable:** ✅ Working Streamlit app; all 3 example questions return valid responses.
 
 ---
 
