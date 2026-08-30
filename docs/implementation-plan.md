@@ -284,7 +284,7 @@ def call_groq(system_prompt: str, context: str, question: str) -> str:
 
 ### 5.1 Response Validator (`src/validation/response_validator.py`)
 
-Implement `validate_response(raw: str, source_url: str, scraped_at: str) -> dict`:
+- [x] Implement `validate_response(raw: str, source_url: str, scraped_at: str) -> dict`:
 
 1. **Sentence Limiter** — Split on `.`, `!`, `?`; truncate to first 3 non-empty sentences.
 2. **Source Injector** — If no URL in `raw`, append `source_url`.
@@ -301,7 +301,7 @@ Return:
 }
 ```
 
-**Deliverable:** Validator passing all constraint tests; 100% test coverage for edge cases.
+**Deliverable:** ✅ Validator passing all constraint tests; 100% test coverage for edge cases.
 
 ---
 
