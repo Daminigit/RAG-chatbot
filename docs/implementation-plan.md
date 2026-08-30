@@ -55,7 +55,7 @@
 
 ### 1.1 Source Scraping (`src/ingestion/scraper.py`)
 
-**Task:** Fetch HTML content from all 5 official Groww fund pages.
+- [x] **Task:** Fetch HTML content from all 5 official Groww fund pages.
 
 ```python
 FUND_URLS = {
@@ -76,13 +76,13 @@ FUND_URLS = {
 
 ### 1.2 Document Parsing (`src/ingestion/scraper.py`)
 
-- Parse HTML with `BeautifulSoup4`; extract fund-specific sections (Expense Ratio, Exit Load, SIP details, Riskometer, Benchmark, NAV, Lock-in period)
+- [x] Parse HTML with `BeautifulSoup4`; extract fund-specific sections (Expense Ratio, Exit Load, SIP details, Riskometer, Benchmark, NAV, Lock-in period)
 - Strip boilerplate (nav bars, footers, ads) using CSS selector targeting
 - Output: Clean plain-text per document saved to `data/processed/<fund_key>.txt`
 
 ### 1.3 Chunking & Metadata Tagging (`src/ingestion/chunker.py`)
 
-**Data-driven strategy** — based on analysis of actual `data/processed/` content:
+- [x] **Data-driven strategy** — based on analysis of actual `data/processed/` content:
 
 | Fund | Raw Chars | Raw Lines | Key Fields Found |
 |---|---|---|---|
@@ -134,7 +134,7 @@ RecursiveCharacterTextSplitter(
 
 ### 1.4 Embedding & Vector Store (`src/ingestion/embedder.py`)
 
-- Load embedding model: `sentence-transformers/all-MiniLM-L6-v2`
+- [x] Load embedding model: `sentence-transformers/all-MiniLM-L6-v2`
 - Initialise ChromaDB with `persist_directory=./vectorstore`, `collection_name="mutual_funds"`
 - For each chunk: generate embedding, upsert to ChromaDB with metadata
 - Add deduplication: skip chunks with matching `source_url` + content hash if already indexed
