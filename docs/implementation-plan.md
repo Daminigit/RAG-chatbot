@@ -16,28 +16,30 @@
 
 ### Tasks
 
-- [ ] Create repository structure as defined in `Architecture.md §9`
-- [ ] Create `.env.example` with all required environment variable keys
-- [ ] Create `requirements.txt` with pinned versions:
+- [x] Create repository structure as defined in `Architecture.md §9`
+- [x] Create `.env.example` with all required environment variable keys
+- [x] Create `requirements.txt` with pinned versions:
   ```
   groq>=0.9.0
   langchain>=0.2.0
   langchain-community>=0.2.0
+  langchain-text-splitters>=0.2.0
   chromadb>=0.5.0
   sentence-transformers>=2.7.0
   streamlit>=1.36.0
   requests>=2.32.0
-  httpx>=0.27.0
   beautifulsoup4>=4.12.0
-  pymupdf>=1.24.0
+  playwright>=1.44.0
   python-dotenv>=1.0.0
   pytest>=8.0.0
   ```
-- [ ] Set up `.gitignore` (exclude `.env`, `vectorstore/`, `data/raw/`, `__pycache__/`)
+- [x] Set up `.gitignore` (exclude `.env`, `.venv/`, `vectorstore/`, `data/raw/`, `__pycache__/`)
+- [x] Create `.venv` virtual environment (`python3 -m venv .venv`) and install all dependencies
 - [ ] Obtain Groq API key from https://console.groq.com and store in `.env`
-- [ ] Verify Groq API connectivity with a "hello world" completion call
+- [ ] Verify Groq API connectivity (`python scripts/verify_groq.py`)
 
 **Deliverable:** Working dev environment; Groq API key validated.
+
 
 ---
 
