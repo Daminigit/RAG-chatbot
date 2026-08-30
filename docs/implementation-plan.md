@@ -337,9 +337,9 @@ def answer_query(user_query: str) -> dict:
     return result
 ```
 
-- Integration test: run 10 golden factual queries end-to-end; assert all constraints pass.
+- [x] Integration test: run golden factual queries end-to-end; assert all constraints pass.
 
-**Deliverable:** `answer_query()` orchestrator; passing integration tests.
+**Deliverable:** ✅ `answer_query()` orchestrator; passing integration tests.
 
 ---
 
